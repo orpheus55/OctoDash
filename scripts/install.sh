@@ -676,7 +676,8 @@ elif [[ $arch == aarch64 ]]; then
 elif  [[ $arch == arm* ]]; then
     releaseURL=$(curl -s "https://api.github.com/repos/UnchartedBull/OctoDash/releases/latest" | grep "browser_download_url.*armv7l.deb" | cut -d '"' -f 4)
 fi
-dependencies="libgtk-3-0 libnotify4 libnss3 libxss1 libxtst6 xdg-utils libatspi2.0-0 libuuid1 libappindicator3-1 libsecret-1-0 xserver-xorg ratpoison x11-xserver-utils xinit libgtk-3-0 bc desktop-file-utils libavahi-compat-libdnssd1 libpam0g-dev libx11-dev"
+dependencies="libgtk-3-0 libnotify4 libnss3 libxss1 libxtst6 xdg-utils libatspi2.0-0 libuuid1 libappindicator3-1 libsecret-1-0 xserver-xorg x11-xserver-utils xinit libgtk-3-0 bc desktop-file-utils libavahi-compat-libdnssd1 libpam0g-dev libx11-dev"
+dependencies_ratpoison="ratpoison"
 IFS='/' read -ra version <<< "$releaseURL"
 
 echo "Installing OctoDash "${version[7]}, $arch""
@@ -694,6 +695,22 @@ echo "Installing Dependencies ..."
   echo "you can run 'sudo apt update --allow-releaseinfo-change' and then execute the OctoDash installation command again"
   exit -1
 }
+
+yes_no=( 'yes' 'no' )
+list_input "Should I install 'ratpoison'?" yes_no ratpoison
+
+echo $ratpoison
+if [ $ratpoison == 'yes' ]; then
+	echo "Installing ratpoison ..."
+	{
+	  sudo apt -qq update
+	  sudo apt -qq install $dependencies_ratpoison -y
+	} || {
+	  echo ""
+	  echo "Couldn't install ratpoison!"
+	  exit -1
+	}
+fi;
 
 if [ -d "/home/pi/OctoPrint/venv" ]; then
     DIRECTORY="/home/pi/OctoPrint/venv"
